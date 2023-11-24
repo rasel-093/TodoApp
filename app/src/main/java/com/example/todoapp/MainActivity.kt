@@ -6,31 +6,34 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.todoapp.components.TopBar
+import com.example.todoapp.screens.BottomSheetScree
+import com.example.todoapp.screens.TaskListScreen
 import com.example.todoapp.ui.theme.TodoAppTheme
-import com.example.todoapp.ui.theme.blackFont
-import com.example.todoapp.ui.theme.topBarColor
-import com.example.todoapp.ui.theme.whiteContainer
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            //BottomSheet related variable
+            val sheetState = rememberModalBottomSheetState()
+            var sheetVisibility = rememberSaveable {
+                mutableStateOf(false)
+            }
+
             TodoAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -39,45 +42,33 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         topBar = { TopBar()},
-                        floatingActionButton = { FloatinActionBtn()},
-                        floatingActionButtonPosition = FabPosition.End
+                        floatingActionButton = {
+                            FloatingActionButton(onClick = { sheetVisibility.value = true }) {
+                                Text(text = "+ Add")
+                            }
+                        }
                     ) {paddingValues ->
                         Column(modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingValues)) {
-                            Text(text = "HomeScreen")
+
+                            TaskListScreen()
+
+                            Button(onClick = { sheetVisibility.value = true }) {
+                                Text(text = "BottomSheet")
+                            }
+                        }
+                        if(sheetVisibility.value) {
+                            ModalBottomSheet(
+                                sheetState = sheetState,
+                                onDismissRequest = { sheetVisibility.value = false},
+                            ) {
+                                BottomSheetScree()
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-fun FloatinActionBtn() {
-    FloatingActionButton(
-        onClick = {  },
-        containerColor = whiteContainer,
-        modifier = Modifier.padding(10.dp)
-    ) {
-        Text(
-            text = "Add Task",
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 20.sp,
-            color = blackFont,
-            modifier = Modifier.padding(10.dp)
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBar() {
-    TopAppBar(
-        title = { Text(text = "Todo") },
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = topBarColor
-        )
-    )
 }
