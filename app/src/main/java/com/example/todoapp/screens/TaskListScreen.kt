@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.todoapp.components.HeaderCard
 import com.example.todoapp.components.TaskCard
+import com.example.todoapp.database.taskList
 
 @Composable
 fun TaskListScreen() {
@@ -29,16 +30,9 @@ fun TaskListScreen() {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            TaskCard()
-            TaskCard()
-            TaskCard()
-            TaskCard()
-            TaskCard()
-            TaskCard()
-            TaskCard()
-            TaskCard()
-            TaskCard()
-            TaskCard()
+            taskList.forEach{taskItem ->
+                TaskCard(taskItem)
+            }
         }
     }
 }

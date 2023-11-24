@@ -10,9 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.todoapp.database.TaskItem
 
 @Composable
-fun TaskCard() {
+fun TaskCard(taskItem: TaskItem) {
+
     ElevatedCard(modifier = Modifier
         .fillMaxWidth()
         .padding(top = 5.dp),
@@ -26,14 +28,14 @@ fun TaskCard() {
                 .padding(5.dp)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(0.75f)
             ) {
-                SemiBoldText(text = "Title")
-                SemiBoldText(text = "Details")
+                SemiBoldText(text = taskItem.title)
+                SemiBoldText(text = taskItem.details)
             }
             Column {
-                SemiBoldText(text = "11/12/23")
-                SemiBoldText(text = "05:20")
+                SemiBoldText(text = taskItem.dueDate)
+                SemiBoldText(text = taskItem.dueTime)
             }
         }
     }
