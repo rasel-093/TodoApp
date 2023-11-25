@@ -1,6 +1,7 @@
 package com.example.todoapp.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
@@ -20,7 +23,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +35,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -80,6 +89,7 @@ fun BottomSheetScree() {
                     KeyboardOptions(imeAction = ImeAction.Next)
                 )
                 CalendarField({deadLineDate = it})
+                TimeField({deadlineTime = it})
             }
         }
 
@@ -199,9 +209,77 @@ fun CalendarField(onValueChange: (String) -> Unit) {
     )
 }
 
+@Composable
+fun TimeField(onValueChange: (String) -> Unit) {
+    var selectedTime by rememberSaveable {
+        mutableStateOf("")
+    }
+    var openDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (openDialog) {
+        CustomTimePickerDialog({selectedTime = it},{ openDialog = it })
+    }
+    OutlinedTextField(
+        value = selectedTime,
+        onValueChange = {onValueChange(selectedTime)},
+        trailingIcon = {
+            IconButton(onClick = { openDialog = true }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.clock_icon),
+                    contentDescription = null
+                )
+            }
+        },
+        label = { Text(text = "hour:minute") },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
 fun getDateInFormat(dateInMillis: Long): String {
     val instant = Instant.ofEpochMilli(dateInMillis)
     val localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate()
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     return localDate.format(formatter)
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomTimePickerDialog(selectedTime: (String) -> Unit, showDialog:(Boolean)->Unit) {
+    AlertDialog(
+        onDismissRequest = { /*TODO*/ },
+
+    ) {
+        val timePickerState = rememberTimePickerState(initialHour = 0, initialMinute = 30,is24Hour = false)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .background(Color(0xFFFFFFFF))
+                .clip(RoundedCornerShape(8.dp))
+        ) {
+            TimePicker(
+                state = timePickerState ,
+                colors = TimePickerDefaults.colors(
+                    containerColor = Color(0xFFFFFFFF)
+                ),
+                modifier = Modifier.fillMaxWidth().padding(10.dp)
+            )
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TextButton(onClick = { showDialog(false) }) {
+                    Text(text = "Cancel")
+                }
+                TextButton(onClick = {
+                    selectedTime("${timePickerState.hour.toString()}:${timePickerState.minute.toString()}")
+                    showDialog(false)
+                }) {
+                    Text(text = "Confirm")
+                }
+            }
+        }
+    }
+}
+
