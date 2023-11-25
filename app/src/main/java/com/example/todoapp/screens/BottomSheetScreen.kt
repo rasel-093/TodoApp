@@ -1,6 +1,8 @@
 package com.example.todoapp.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,9 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,12 +28,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todoapp.R
 import com.example.todoapp.ui.theme.blackFont
 import com.example.todoapp.ui.theme.primaryColor
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun BottomSheetScree() {
@@ -48,23 +64,26 @@ fun BottomSheetScree() {
         var deadLineDate by rememberSaveable {
             mutableStateOf("")
         }
-        Text(
-            text = "New Task",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = blackFont
-        )
-        TextField(text = title, onValueChange = {title = it},"Title",
-            KeyboardOptions(imeAction = ImeAction.Next)
-        )
-        TextField(text = details, onValueChange = {details = it},"Details",
-            KeyboardOptions(imeAction = ImeAction.Next)
-        )
-        TextField(text = deadLineDate, onValueChange = {deadLineDate = it},"Deadline Date",
-            KeyboardOptions(imeAction = ImeAction.Next)
-        )
-        TextField(text = deadlineTime, onValueChange ={deadlineTime = it}, "DeadLine Time",
-            KeyboardOptions(imeAction = ImeAction.Done) )
+        Box(modifier = Modifier.fillMaxWidth()){
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "New Task",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = blackFont
+                )
+                CustomTextField(text = title, onValueChange = {title = it},"Title",
+                    KeyboardOptions(imeAction = ImeAction.Next)
+                )
+                CustomTextField(text = details, onValueChange = {details = it},"Details",
+                    KeyboardOptions(imeAction = ImeAction.Next)
+                )
+                CalendarField({deadLineDate = it})
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         Spacer(modifier = Modifier.height(20.dp))
         Row (
@@ -103,7 +122,7 @@ fun BottomSheetScree() {
 }
 
 @Composable
-fun TextField(text: String, onValueChange: (String)-> Unit, label: String,keyBoardAction: KeyboardOptions) {
+fun CustomTextField(text: String, onValueChange: (String)-> Unit, label: String, keyBoardAction: KeyboardOptions) {
     OutlinedTextField(
         value = text,
         onValueChange = onValueChange,
@@ -112,4 +131,77 @@ fun TextField(text: String, onValueChange: (String)-> Unit, label: String,keyBoa
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = keyBoardAction
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomDatePicker(selectedDate: (String) -> Unit, openDialog:(Boolean)->Unit) {
+
+    val selectedDate = rememberSaveable{ mutableStateOf(LocalDate.now()) }
+    val context = LocalContext.current
+
+    val datePickerState = rememberDatePickerState(
+            yearRange = IntRange(2023,2030),
+            initialDisplayMode = DisplayMode.Picker
+        )
+
+    DatePickerDialog(
+        onDismissRequest = {  },
+        confirmButton = { Button(onClick = {
+            if(datePickerState.selectedDateMillis != null){
+                val dateMillis = datePickerState.selectedDateMillis
+                val formattedDate = getDateInFormat(dateMillis!!)
+                selectedDate(formattedDate)
+                openDialog(false)
+            }
+            else
+            {
+                Toast.makeText(context,"Please select date",Toast.LENGTH_SHORT).show()
+            }
+        }) {
+            Text(text = "Confirm")
+        } },
+        dismissButton = { Button(onClick = { openDialog(false) }) {
+            Text(text = "Cancel")
+        }}
+    ) {
+        DatePicker(
+            state = datePickerState,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+}
+
+@Composable
+fun CalendarField(onValueChange: (String) -> Unit) {
+    var openDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var selectedDate by rememberSaveable {
+        mutableStateOf("")
+    }
+    if (openDialog) {
+        CustomDatePicker({ selectedDate = it }, { openDialog = it })
+    }
+    OutlinedTextField(
+        value = selectedDate,
+        onValueChange = {onValueChange(selectedDate.toString())},
+        trailingIcon = {
+            IconButton(onClick = { openDialog = true }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.calendar_icon),
+                    contentDescription = null
+                )
+            }
+        },
+        label = { Text(text = "date/month/year") },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+fun getDateInFormat(dateInMillis: Long): String {
+    val instant = Instant.ofEpochMilli(dateInMillis)
+    val localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    return localDate.format(formatter)
 }
