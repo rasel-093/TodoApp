@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
+import com.example.todoapp.components.BoldText
 import com.example.todoapp.ui.theme.blackFont
 import com.example.todoapp.ui.theme.primaryColor
 import java.time.Instant
@@ -74,14 +75,8 @@ fun BottomSheetScree() {
             mutableStateOf("")
         }
         Box(modifier = Modifier.fillMaxWidth()){
-
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "New Task",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = blackFont
-                )
+                BoldText(text = "New Task")
                 CustomTextField(text = title, onValueChange = {title = it},"Title",
                     KeyboardOptions(imeAction = ImeAction.Next)
                 )
@@ -95,7 +90,6 @@ fun BottomSheetScree() {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
         Row (
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(0.7f)
@@ -188,14 +182,15 @@ fun CalendarField(onValueChange: (String) -> Unit) {
         mutableStateOf(false)
     }
     var selectedDate by rememberSaveable {
-        mutableStateOf("")
+        mutableStateOf("Select Date")
     }
     if (openDialog) {
         CustomDatePicker({ selectedDate = it }, { openDialog = it })
     }
+
     OutlinedTextField(
         value = selectedDate,
-        onValueChange = {onValueChange(selectedDate.toString())},
+        onValueChange = {onValueChange(selectedDate)},
         trailingIcon = {
             IconButton(onClick = { openDialog = true }) {
                 Icon(
@@ -212,7 +207,7 @@ fun CalendarField(onValueChange: (String) -> Unit) {
 @Composable
 fun TimeField(onValueChange: (String) -> Unit) {
     var selectedTime by rememberSaveable {
-        mutableStateOf("")
+        mutableStateOf("Select Time")
     }
     var openDialog by rememberSaveable {
         mutableStateOf(false)
@@ -263,7 +258,9 @@ fun CustomTimePickerDialog(selectedTime: (String) -> Unit, showDialog:(Boolean)-
                 colors = TimePickerDefaults.colors(
                     containerColor = Color(0xFFFFFFFF)
                 ),
-                modifier = Modifier.fillMaxWidth().padding(10.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
             )
             Row(
                 horizontalArrangement = Arrangement.End,

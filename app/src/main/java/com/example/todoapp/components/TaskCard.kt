@@ -34,8 +34,8 @@ fun TaskCard(taskItem: TaskItem) {
                 SemiBoldText(text = taskItem.details)
             }
             Column {
-                SemiBoldText(text = taskItem.dueDate)
-                SemiBoldText(text = taskItem.dueTime)
+                SemiBoldText(text = taskItem.deadLineDate)
+                SemiBoldText(text = taskItem.deadLineTime)
             }
         }
     }
