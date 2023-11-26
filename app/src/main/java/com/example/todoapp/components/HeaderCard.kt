@@ -57,7 +57,7 @@ fun HeaderCard() {
                 .padding(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BoldText(text = "Your Name")
+            BoldText(text = "Your Tasks")
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier

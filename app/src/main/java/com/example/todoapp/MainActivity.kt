@@ -1,5 +1,6 @@
 package com.example.todoapp
 
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,10 +16,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.components.TopBar
+import com.example.todoapp.database.TaskViewModel
 import com.example.todoapp.screens.BottomSheetScree
 import com.example.todoapp.screens.TaskListScreen
 import com.example.todoapp.ui.theme.TodoAppTheme
@@ -28,9 +35,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val taskViewModel: TaskViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory{
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return TaskViewModel(applicationContext as Application) as  T
+                    }
+                }
+            )
             //BottomSheet related variable
             val sheetState = rememberModalBottomSheetState()
-            var sheetVisibility = rememberSaveable {
+            var sheetVisibility by rememberSaveable {
                 mutableStateOf(false)
             }
 
@@ -43,7 +57,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = { TopBar()},
                         floatingActionButton = {
-                            FloatingActionButton(onClick = { sheetVisibility.value = true }) {
+                            FloatingActionButton(onClick = { sheetVisibility = true }) {
                                 Text(text = "+ Add")
                             }
                         }
@@ -52,18 +66,18 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(paddingValues)) {
 
-                            TaskListScreen()
+                            TaskListScreen(taskViewModel)
 
-                            Button(onClick = { sheetVisibility.value = true }) {
+                            Button(onClick = { sheetVisibility = true }) {
                                 Text(text = "BottomSheet")
                             }
                         }
-                        if(sheetVisibility.value) {
+                        if(sheetVisibility) {
                             ModalBottomSheet(
                                 sheetState = sheetState,
-                                onDismissRequest = { sheetVisibility.value = false},
+                                onDismissRequest = { sheetVisibility = false},
                             ) {
-                                BottomSheetScree()
+                                BottomSheetScree(taskViewModel,{sheetVisibility = it})
                             }
                         }
                     }

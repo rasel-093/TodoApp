@@ -1,6 +1,9 @@
 package com.example.todoapp.screens
 
+import android.os.Build
+import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,16 +48,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
 import com.example.todoapp.components.BoldText
+import com.example.todoapp.database.TaskItem
+import com.example.todoapp.database.TaskViewModel
 import com.example.todoapp.ui.theme.blackFont
 import com.example.todoapp.ui.theme.primaryColor
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun BottomSheetScree() {
+fun BottomSheetScree(taskViewModel: TaskViewModel,sheetVisibility: (Boolean)->Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -83,8 +87,8 @@ fun BottomSheetScree() {
                 CustomTextField(text = details, onValueChange = {details = it},"Details",
                     KeyboardOptions(imeAction = ImeAction.Next)
                 )
-                CalendarField({deadLineDate = it})
-                TimeField({deadlineTime = it})
+                CalendarField(deadLineDate, { deadLineDate = it })
+                TimeField(deadlineTime,{deadlineTime = it})
             }
         }
 
@@ -95,7 +99,9 @@ fun BottomSheetScree() {
             modifier = Modifier.fillMaxWidth(0.7f)
         ){
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                          sheetVisibility(false)
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = primaryColor
                 )
@@ -108,7 +114,21 @@ fun BottomSheetScree() {
                 )
             }
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                          val taskItem = TaskItem(
+                              null,
+                              title,
+                              details,
+                              (false).toString(),
+                              deadLineDate,
+                              deadlineTime
+
+                          )
+                    Log.d("Deadline date",deadLineDate)
+                    Log.d("Deadline time",deadlineTime)
+                    taskViewModel.inserTask(taskItem)
+                    sheetVisibility(false)
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = primaryColor
                 )
@@ -141,7 +161,7 @@ fun CustomTextField(text: String, onValueChange: (String)-> Unit, label: String,
 @Composable
 fun CustomDatePicker(selectedDate: (String) -> Unit, openDialog:(Boolean)->Unit) {
 
-    val selectedDate = rememberSaveable{ mutableStateOf(LocalDate.now()) }
+    //val selectedDate = rememberSaveable{ mutableStateOf(LocalDate.now()) }
     val context = LocalContext.current
 
     val datePickerState = rememberDatePickerState(
@@ -176,21 +196,56 @@ fun CustomDatePicker(selectedDate: (String) -> Unit, openDialog:(Boolean)->Unit)
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarField(onValueChange: (String) -> Unit) {
+fun CalendarField(deadLineDate: String, onValueChange: (String) -> Unit) {
     var openDialog by rememberSaveable {
         mutableStateOf(false)
     }
     var selectedDate by rememberSaveable {
-        mutableStateOf("Select Date")
+        mutableStateOf("")
     }
     if (openDialog) {
-        CustomDatePicker({ selectedDate = it }, { openDialog = it })
+        //CustomDatePicker({ selectedDate = it }, { openDialog = it })
+        val context = LocalContext.current
+
+        val datePickerState = rememberDatePickerState(
+            yearRange = IntRange(2023,2030),
+            initialDisplayMode = DisplayMode.Picker
+        )
+
+        DatePickerDialog(
+            onDismissRequest = {  },
+            confirmButton = { Button(onClick = {
+                if(datePickerState.selectedDateMillis != null){
+                    val dateMillis = datePickerState.selectedDateMillis
+                    val formattedDate = getDateInFormat(dateMillis!!)
+                    selectedDate = formattedDate.format(DateTimeFormatter.ofPattern("dd/MM/yy"))
+                    onValueChange(selectedDate)
+                    openDialog = false
+                }
+                else
+                {
+                    Toast.makeText(context,"Please select date",Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                Text(text = "Confirm")
+            } },
+            dismissButton = { Button(onClick = { openDialog = false }) {
+                Text(text = "Cancel")
+            }}
+        ) {
+            DatePicker(
+                state = datePickerState,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
     }
 
     OutlinedTextField(
-        value = selectedDate,
-        onValueChange = {onValueChange(selectedDate)},
+        value = deadLineDate,
+        onValueChange = { onValueChange(selectedDate) },
         trailingIcon = {
             IconButton(onClick = { openDialog = true }) {
                 Icon(
@@ -204,19 +259,60 @@ fun CalendarField(onValueChange: (String) -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeField(onValueChange: (String) -> Unit) {
+fun TimeField(deadLineTime: String,onValueChange: (String) -> Unit) {
     var selectedTime by rememberSaveable {
-        mutableStateOf("Select Time")
+        mutableStateOf("")
     }
     var openDialog by rememberSaveable {
         mutableStateOf(false)
     }
     if (openDialog) {
-        CustomTimePickerDialog({selectedTime = it},{ openDialog = it })
+        //CustomTimePickerDialog({selectedTime = it},{ openDialog = it })
+        AlertDialog(
+            onDismissRequest = { /*TODO*/ },
+
+            ) {
+            val timePickerState = rememberTimePickerState(initialHour = 0, initialMinute = 30,is24Hour = true)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(Color(0xFFFFFFFF))
+                    .clip(RoundedCornerShape(8.dp))
+            ) {
+                TimePicker(
+                    state = timePickerState ,
+                    colors = TimePickerDefaults.colors(
+                        containerColor = Color(0xFFFFFFFF)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { openDialog = false }) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(onClick = {
+                        //selectedTime("${timePickerState.hour.toString()}:${timePickerState.minute.toString()}")
+                        // showDialog(false)
+                        selectedTime = "${timePickerState.hour}:${timePickerState.minute}"
+                        onValueChange(selectedTime)
+                        openDialog = false
+                    }) {
+                        Text(text = "Confirm")
+                    }
+                }
+            }
+        }
     }
     OutlinedTextField(
-        value = selectedTime,
+        value = deadLineTime,
         onValueChange = {onValueChange(selectedTime)},
         trailingIcon = {
             IconButton(onClick = { openDialog = true }) {

@@ -8,14 +8,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.todoapp.components.HeaderCard
 import com.example.todoapp.components.TaskCard
-import com.example.todoapp.database.taskList
+import com.example.todoapp.database.TaskViewModel
 
 @Composable
-fun TaskListScreen() {
+fun TaskListScreen(taskViewModel: TaskViewModel) {
+
+    val taskList = taskViewModel.allTask.observeAsState(listOf()).value
     Column(
         modifier = Modifier
             .fillMaxSize()
