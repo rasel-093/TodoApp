@@ -288,7 +288,8 @@ fun TimeField(deadLineTime: String,onValueChange: (String) -> Unit) {
                     TextButton(onClick = {
                         //selectedTime("${timePickerState.hour.toString()}:${timePickerState.minute.toString()}")
                         // showDialog(false)
-                        selectedTime = "${timePickerState.hour}:${timePickerState.minute}"
+                        selectedTime = if (timePickerState.hour < 10) "0${timePickerState.hour}:${timePickerState.minute}"
+                                            else "${timePickerState.hour}:${timePickerState.minute}"
                         onValueChange(selectedTime)
                         openDialog = false
                     }) {

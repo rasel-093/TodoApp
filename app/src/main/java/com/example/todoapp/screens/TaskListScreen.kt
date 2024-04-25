@@ -27,6 +27,7 @@ import com.example.todoapp.components.SwipeToDeleteContainer
 import com.example.todoapp.components.TaskCard
 import com.example.todoapp.database.TaskViewModel
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -39,6 +40,7 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
     val today = LocalDate.now()
     val formattedToday = today.format(formatter).toString()
     val formattedTomorrow = today.plusDays(1).format(formatter).toString()
+    val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
     Log.d("Today Date" , formattedToday)
     Log.d("Tomorrow Date" , formattedTomorrow)
 
@@ -60,7 +62,14 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
             when(filteredBy){
                 "Today" -> it.deadLineDate == formattedToday
                 "Tomorrow" -> it.deadLineDate == formattedTomorrow
-                "Missed" -> it.deadLineDate < formattedToday
+                "Missed" ->{
+                    Log.d("Missed items", "${it.deadLineTime < currentTime} ")
+                    Log.d("Deadline time" , it.deadLineTime)
+                    Log.d("Current time" , currentTime)
+                    (it.deadLineDate < formattedToday
+                            || (it.deadLineDate == formattedToday
+                            && it.deadLineTime < currentTime))&& it.isCompleted== false.toString()
+                }
                 "Done" -> it.isCompleted== true.toString()
                 else -> {true}
             }
@@ -94,5 +103,23 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
                 }
             }
         }
+    }
+}
+
+
+fun compareTime(timeStr: String): Boolean {
+    try {
+        // Parse the input time string
+        val time = LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"))
+
+        // Get the current time
+        val currentTime = LocalTime.now()
+
+        // Compare times
+        Log.d("Compared time", "$timeStr ${time.isBefore(currentTime)}")
+        return time.isBefore(currentTime)  // True if timeStr is earlier than current time
+    } catch (e: Exception) {
+        println("Invalid time format. Please use 'hh:mm'.")
+        return false
     }
 }
