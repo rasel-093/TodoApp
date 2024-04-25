@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -36,7 +37,9 @@ import com.example.todoapp.components.DateTimeText
 import com.example.todoapp.components.FilterButtonRow
 import com.example.todoapp.components.SemiBoldText
 import com.example.todoapp.components.SimpleText
+import com.example.todoapp.components.SwipeToDeleteContainer
 import com.example.todoapp.components.TaskCard
+import com.example.todoapp.database.TaskItem
 import com.example.todoapp.database.TaskViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -67,6 +70,7 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
             filteredBy = it
             Log.d("FilteredText", it)
         }
+
         val filteredTaskList = taskList.filter {
             when(filteredBy){
                 "Today" -> it.deadLineDate == formattedToday
@@ -96,7 +100,12 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
                     .verticalScroll(rememberScrollState())
             ) {
                 filteredTaskList.forEach{taskItem ->
-                    TaskCard(taskItem, taskViewModel)
+                    //TaskCard(taskItem, taskViewModel)
+                    SwipeToDeleteContainer(item = taskItem, onDelete = {
+                        taskViewModel.deleteTask(taskItem)
+                    }) {
+                        TaskCard(taskItem = it, taskViewModel = taskViewModel )
+                    }
                 }
             }
         }
