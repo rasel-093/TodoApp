@@ -57,8 +57,9 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
-fun BottomSheetScree(taskViewModel: TaskViewModel,sheetVisibility: (Boolean)->Unit) {
+fun BottomSheetScreen(taskViewModel: TaskViewModel, sheetVisibility: (Boolean)->Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

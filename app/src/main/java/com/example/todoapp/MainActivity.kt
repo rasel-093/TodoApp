@@ -1,9 +1,11 @@
 package com.example.todoapp
 
 import android.app.Application
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,11 +28,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.components.TopBar
 import com.example.todoapp.database.TaskViewModel
-import com.example.todoapp.screens.BottomSheetScree
+import com.example.todoapp.screens.BottomSheetScreen
 import com.example.todoapp.screens.TaskListScreen
 import com.example.todoapp.ui.theme.TodoAppTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +68,6 @@ class MainActivity : ComponentActivity() {
                         Column(modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingValues)) {
-
                             TaskListScreen(taskViewModel)
 
                             Button(onClick = { sheetVisibility = true }) {
@@ -77,7 +79,7 @@ class MainActivity : ComponentActivity() {
                                 sheetState = sheetState,
                                 onDismissRequest = { sheetVisibility = false},
                             ) {
-                                BottomSheetScree(taskViewModel,{sheetVisibility = it})
+                                BottomSheetScreen(taskViewModel,{sheetVisibility = it})
                             }
                         }
                     }
