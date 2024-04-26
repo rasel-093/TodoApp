@@ -60,7 +60,9 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
 
         val filteredTaskList = taskList.filter {
             when (filteredBy) {
-                "Today" -> it.deadLineDate == formattedToday && it.isCompleted == false.toString()
+                "Today" -> it.deadLineDate == formattedToday
+                        && it.isCompleted == false.toString()
+                        && it.deadLineTime> currentTime
                 "Tomorrow" -> it.deadLineDate == formattedTomorrow && it.isCompleted == false.toString()
                 "Missed" -> {
                     (it.deadLineDate < formattedToday
