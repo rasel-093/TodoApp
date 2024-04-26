@@ -48,7 +48,7 @@ fun TaskCard(taskItem: TaskItem, taskViewModel: TaskViewModel) {
                         refresh = !refresh
                     })
                 Column(
-                    modifier = Modifier.fillMaxWidth(0.75f)
+                    modifier = Modifier.fillMaxWidth(0.72f)
                 ) {
                     SemiBoldText(text = taskItem.title)
                     SimpleText(text = taskItem.details)
