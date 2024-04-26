@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun FilterButtonRow(
-    onValueChange: (String)->Unit
-){
+    onValueChange: (String) -> Unit
+) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,7 +33,7 @@ fun FilterButtonRow(
             containerColor = Color(0xFFFFFFFF)
         )
     ) {
-        val filterItems = arrayListOf("All", "Today", "Tomorrow",  "Missed", "Done")
+        val filterItems = arrayListOf("All", "Today", "Tomorrow", "Missed", "Done")
 
         var selectedItem by rememberSaveable {
             mutableStateOf("All")
@@ -43,12 +43,12 @@ fun FilterButtonRow(
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            filterItems.forEach{item->
+            filterItems.forEach { item ->
                 TextButton(
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if ( selectedItem == item) Color.DarkGray else Color.LightGray),
+                        .background(if (selectedItem == item) Color.DarkGray else Color.LightGray),
                     onClick = {
                         selectedItem = item
                         onValueChange(item)

@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-class TaskViewModel(application: Application): AndroidViewModel(application) {
+class TaskViewModel(application: Application) : AndroidViewModel(application) {
     val allTask: LiveData<List<TaskItem>>
     private val repository: TaskRepository
 
@@ -16,16 +16,19 @@ class TaskViewModel(application: Application): AndroidViewModel(application) {
         allTask = repository.allTask
     }
 
-    fun inserTask(taskItem: TaskItem){
+    fun inserTask(taskItem: TaskItem) {
         viewModelScope.launch { repository.insertTask(taskItem) }
     }
-    fun deleteTask(taskItem: TaskItem){
+
+    fun deleteTask(taskItem: TaskItem) {
         viewModelScope.launch { repository.deleteTask(taskItem) }
     }
-    fun updateTask(taskItem: TaskItem){
+
+    fun updateTask(taskItem: TaskItem) {
         viewModelScope.launch { repository.updateTask(taskItem) }
     }
-    fun deleteAllTask(){
+
+    fun deleteAllTask() {
         viewModelScope.launch { repository.deleteAllTask() }
     }
 }

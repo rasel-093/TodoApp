@@ -44,8 +44,9 @@ fun SimpleText(text: String) {
         modifier = Modifier.padding(2.dp)
     )
 }
+
 @Composable
-fun DateTimeText(text: String){
+fun DateTimeText(text: String) {
     Text(
         text = text,
         fontWeight = FontWeight.SemiBold,

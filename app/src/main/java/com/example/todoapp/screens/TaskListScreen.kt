@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,8 +41,8 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
     val formattedToday = today.format(formatter).toString()
     val formattedTomorrow = today.plusDays(1).format(formatter).toString()
     val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
-    Log.d("Today Date" , formattedToday)
-    Log.d("Tomorrow Date" , formattedTomorrow)
+    Log.d("Today Date", formattedToday)
+    Log.d("Tomorrow Date", formattedTomorrow)
 
     Column(
         modifier = Modifier
@@ -59,23 +59,23 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
         }
 
         val filteredTaskList = taskList.filter {
-            when(filteredBy){
-                "Today" -> it.deadLineDate == formattedToday
-                "Tomorrow" -> it.deadLineDate == formattedTomorrow
-                "Missed" ->{
-                    Log.d("Missed items", "${it.deadLineTime < currentTime} ")
-                    Log.d("Deadline time" , it.deadLineTime)
-                    Log.d("Current time" , currentTime)
+            when (filteredBy) {
+                "Today" -> it.deadLineDate == formattedToday && it.isCompleted == false.toString()
+                "Tomorrow" -> it.deadLineDate == formattedTomorrow && it.isCompleted == false.toString()
+                "Missed" -> {
                     (it.deadLineDate < formattedToday
                             || (it.deadLineDate == formattedToday
-                            && it.deadLineTime < currentTime))&& it.isCompleted== false.toString()
+                            && it.deadLineTime < currentTime)) && it.isCompleted == false.toString()
                 }
-                "Done" -> it.isCompleted== true.toString()
-                else -> {true}
+
+                "Done" -> it.isCompleted == true.toString()
+                else -> {
+                    true
+                }
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
-        if (taskList.isEmpty()){
+        if (taskList.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -87,39 +87,19 @@ fun TaskListScreen(taskViewModel: TaskViewModel) {
                 )
                 Text(text = "There is no item in the list")
             }
-        }else{
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                filteredTaskList.forEach{taskItem ->
-                    //TaskCard(taskItem, taskViewModel)
+        } else {
+            LazyColumn {
+                items(
+                    items = filteredTaskList,
+                    key = { it.id.toString() }
+                ) { taskItem ->
                     SwipeToDeleteContainer(item = taskItem, onDelete = {
                         taskViewModel.deleteTask(taskItem)
                     }) {
-                        TaskCard(taskItem = it, taskViewModel = taskViewModel )
+                        TaskCard(taskItem = it, taskViewModel = taskViewModel)
                     }
                 }
             }
         }
-    }
-}
-
-
-fun compareTime(timeStr: String): Boolean {
-    try {
-        // Parse the input time string
-        val time = LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"))
-
-        // Get the current time
-        val currentTime = LocalTime.now()
-
-        // Compare times
-        Log.d("Compared time", "$timeStr ${time.isBefore(currentTime)}")
-        return time.isBefore(currentTime)  // True if timeStr is earlier than current time
-    } catch (e: Exception) {
-        println("Invalid time format. Please use 'hh:mm'.")
-        return false
     }
 }

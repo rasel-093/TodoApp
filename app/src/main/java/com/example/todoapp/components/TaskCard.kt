@@ -23,9 +23,10 @@ import com.example.todoapp.database.TaskViewModel
 
 @Composable
 fun TaskCard(taskItem: TaskItem, taskViewModel: TaskViewModel) {
-    ElevatedCard(modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 5.dp),
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 5.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFFFFFF)
         )
@@ -33,7 +34,7 @@ fun TaskCard(taskItem: TaskItem, taskViewModel: TaskViewModel) {
         var refresh by rememberSaveable {
             mutableStateOf(true)
         }
-        if(refresh == true || refresh == false){
+        if (refresh == true || refresh == false) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -45,7 +46,7 @@ fun TaskCard(taskItem: TaskItem, taskViewModel: TaskViewModel) {
                         taskItem.isCompleted = it.toString()
                         taskViewModel.updateTask(taskItem)
                         refresh = !refresh
-                    } )
+                    })
                 Column(
                     modifier = Modifier.fillMaxWidth(0.75f)
                 ) {

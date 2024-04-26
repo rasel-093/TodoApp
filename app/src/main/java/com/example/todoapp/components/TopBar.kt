@@ -14,12 +14,14 @@ import com.example.todoapp.ui.theme.primaryColor
 @Composable
 fun TopBar() {
     TopAppBar(
-        title = { Text(
-            text = "Todo",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            color = blackFont
-        ) },
+        title = {
+            Text(
+                text = "Todo",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = blackFont
+            )
+        },
         colors = TopAppBarDefaults.smallTopAppBarColors(
             containerColor = primaryColor
         )

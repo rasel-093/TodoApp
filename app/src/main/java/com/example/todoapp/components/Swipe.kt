@@ -36,22 +36,22 @@ fun <T> SwipeToDeleteContainer(
     onDelete: (T) -> Unit,
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit
-){
+) {
     var isRemoved by remember {
         mutableStateOf(false)
     }
     val state = rememberDismissState(
-        confirmValueChange = {value->
-            if (value == DismissValue.DismissedToStart){
+        confirmValueChange = { value ->
+            if (value == DismissValue.DismissedToStart) {
                 isRemoved = true
                 true
-            }else
+            } else
                 false
         }
     )
 
     LaunchedEffect(key1 = isRemoved) {
-        if (isRemoved){
+        if (isRemoved) {
             delay(animationDuration.toLong())
             onDelete(item)
         }
@@ -66,17 +66,18 @@ fun <T> SwipeToDeleteContainer(
     ) {
         SwipeToDismiss(
             state = state,
-            background = { DeleteBackground(swipeDismissState = state)},
-            dismissContent = {content(item)},
+            background = { DeleteBackground(swipeDismissState = state) },
+            dismissContent = { content(item) },
             directions = setOf(DismissDirection.EndToStart)
         )
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteBackground(
     swipeDismissState: DismissState
-){
+) {
     val color = if (swipeDismissState.dismissDirection == DismissDirection.EndToStart)
         Color.Red else Color.Transparent
 
@@ -86,7 +87,7 @@ fun DeleteBackground(
             .background(color)
             .padding(16.dp),
         contentAlignment = Alignment.CenterEnd
-    ){
-        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White )
+    ) {
+        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
     }
 }
